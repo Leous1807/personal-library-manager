@@ -61,4 +61,79 @@ public class FileManager {
             System.out.println("Error saving CSV file: " + e.getMessage());
         }
     }
+
+    public static List<String> readBookPages(String filePath, int linesPerPage) {
+        List<String> pages = new ArrayList<>();
+        File f = new File(BOOKS_TEXT_DIR + filePath);
+        if (!f.exists()) {
+            System.out.println("This book was not found.");
+            return pages;
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            String line;
+            StringBuilder pg = new StringBuilder();
+            int linecnt = 0;
+            while ((line = br.readLine()) != null) {
+                pg.append(line).append("\n");
+                linecnt++;
+                if (linecnt == linesPerPage) {
+                    pages.add(pg.toString());
+                    pg.setLength(0);
+                    linecnt = 0;
+                }
+            }
+            if (pg.length() > 0) {
+                pages.add(pg.toString());
+            }
+        } catch (IOException e) {
+            pages.clear();
+            System.out.println("Error reading book pages: " + e.getMessage());
+        }
+        return pages;
+    }
+
+    public static int countLines(String filePath) {
+        File f = new File(BOOKS_TEXT_DIR + filePath);
+        if (!f.exists()) {
+            System.out.println("This book was not found.");
+            return 0;
+        }
+        int cnt = 0;
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            while (br.readLine() != null) {
+                cnt++;
+            }
+        } catch (IOException e) {
+            System.out.println("Error counting lines: " + e.getMessage());
+            return 0;
+        }
+        return cnt;
+    }
+
+    public static void writeBookText(String filePath, String content) throws IOException {
+        File f = new File(BOOKS_TEXT_DIR + filePath);
+        File parentDir = f.getParentFile();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(f, false))) {
+            bw.write(content);
+        }
+    }
+
+    public static String readFullText(String filePath) {
+        File f = new File(BOOKS_TEXT_DIR + filePath);
+        if (!f.exists()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            String l;
+            while ((l = br.readLine()) != null) {
+                sb.append(l).append("\n");
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading full text: " + e.getMessage());
+            return "";
+        }
+        return sb.toString();
+    }
+
 }
